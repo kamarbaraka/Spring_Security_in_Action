@@ -10,9 +10,15 @@ import io.swagger.v3.oas.models.annotations.OpenAPI31;
 import org.springframework.hateoas.EntityModel;
 import org.springframework.hateoas.server.mvc.WebMvcLinkBuilder;
 import org.springframework.http.ResponseEntity;
+import org.springframework.scheduling.annotation.Async;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+
+import java.util.concurrent.CompletableFuture;
 
 /**
  * the hello controller.
@@ -38,15 +44,16 @@ public class HelloController {
      */
     @GetMapping
     @Operation(summary = "hello API", description = "an api to greet the user", tags = {"Hello"})
-    public ResponseEntity<EntityModel<Message>> hello(){
+    @PreAuthorize("hasRole('ADMIN')")
+    public CompletableFuture<ResponseEntity<EntityModel<Message>>> hello(@AuthenticationPrincipal UserDetails userDetails){
 
         /*the message*/
-        Message message = new Message("Hello!", "kamar");
+        Message message = new Message("Hello!", userDetails.getUsername());
         /*build an Entity Model*/
         EntityModel<Message> resource = EntityModel.of(message);
         /*set the link*/
-        resource.add(WebMvcLinkBuilder.linkTo(WebMvcLinkBuilder.methodOn(HelloController.class).hello()).withSelfRel());
+        resource.add(WebMvcLinkBuilder.linkTo(WebMvcLinkBuilder.methodOn(AnotherController.class).another(userDetails)).withSelfRel());
         /*return hello greeting*/
-        return ResponseEntity.ok(resource);
+        return CompletableFuture.completedFuture(ResponseEntity.ok(resource));
     }
 }
