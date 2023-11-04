@@ -1,8 +1,6 @@
 package com.kamar.spring_security_in_action.app;
 
 import io.swagger.v3.oas.annotations.Operation;
-import org.springframework.scheduling.annotation.Async;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -25,7 +23,7 @@ public class AsyncTryController {
 
     @GetMapping
     @Operation(tags = {"Async Test"}, summary = "api to test async web programming")
-    @Async
+//    @Async
     public CompletableFuture<String> loggedInUser(@AuthenticationPrincipal UserDetails authenticatedUser){
 
         return CompletableFuture.supplyAsync(

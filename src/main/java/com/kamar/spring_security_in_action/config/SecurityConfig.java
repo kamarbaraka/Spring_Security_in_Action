@@ -5,7 +5,10 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
+import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.AuthenticationFailureHandler;
+import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
 
 /**
  * the security configuration.
@@ -16,12 +19,22 @@ import org.springframework.security.web.SecurityFilterChain;
 public class SecurityConfig {
 
     @Bean
-    public SecurityFilterChain securityFilterChain(HttpSecurity httpSecurity) throws Exception{
+    public SecurityFilterChain securityFilterChain(HttpSecurity httpSecurity,
+                                                   AuthenticationEntryPoint authenticationEntryPoint,
+                                                   AuthenticationSuccessHandler successHandler,
+                                                   AuthenticationFailureHandler failureHandler) throws Exception{
 
         /*enable http Basic authentication*/
-        httpSecurity.httpBasic(customizer -> {});
+        httpSecurity.httpBasic(httpBasic -> {
+            httpBasic.realmName("S.S.I.A");
+            httpBasic.authenticationEntryPoint(authenticationEntryPoint);
+        });
         /*enable login form*/
-        httpSecurity.formLogin(formLogin -> {});
+        httpSecurity.formLogin(formLogin -> {
+
+            formLogin.successHandler(successHandler);
+            formLogin.failureHandler(failureHandler);
+        });
 
         /*disable csrf*/
         httpSecurity.csrf(AbstractHttpConfigurer::disable);

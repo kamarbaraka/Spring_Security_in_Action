@@ -12,7 +12,7 @@ import org.springframework.web.servlet.config.annotation.EnableWebMvc;
  * @author kamar baraka.*/
 
 @Configuration
-@EnableAsync
+//@EnableAsync
 public class AsyncConfig {
 
     @Bean

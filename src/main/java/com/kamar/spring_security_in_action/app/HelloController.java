@@ -7,8 +7,11 @@ import io.swagger.v3.oas.annotations.info.Contact;
 import io.swagger.v3.oas.annotations.info.Info;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import io.swagger.v3.oas.models.annotations.OpenAPI31;
+import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpServletResponseWrapper;
 import org.springframework.hateoas.EntityModel;
 import org.springframework.hateoas.server.mvc.WebMvcLinkBuilder;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -44,16 +47,19 @@ public class HelloController {
      */
     @GetMapping
     @Operation(summary = "hello API", description = "an api to greet the user", tags = {"Hello"})
-    @PreAuthorize("hasRole('ADMIN')")
-    public CompletableFuture<ResponseEntity<EntityModel<Message>>> hello(@AuthenticationPrincipal UserDetails userDetails){
+    @PreAuthorize("permitAll()")
+    public ResponseEntity<EntityModel<Message>> hello(/*@AuthenticationPrincipal UserDetails userDetails*/){
 
+        /*if (userDetails == null)
+            return ResponseEntity.notFound().build();*/
         /*the message*/
-        Message message = new Message("Hello!", userDetails.getUsername());
+        Message message = new Message("Hello!", "user");
         /*build an Entity Model*/
         EntityModel<Message> resource = EntityModel.of(message);
         /*set the link*/
-        resource.add(WebMvcLinkBuilder.linkTo(WebMvcLinkBuilder.methodOn(AnotherController.class).another(userDetails)).withSelfRel());
+        resource.add(WebMvcLinkBuilder.linkTo(WebMvcLinkBuilder.methodOn(AnotherController.class).another()).withSelfRel());
         /*return hello greeting*/
-        return CompletableFuture.completedFuture(ResponseEntity.ok(resource));
+        return ResponseEntity.status(HttpStatus.PERMANENT_REDIRECT).header("Location",
+                "/api/v1/another").body(resource);
     }
 }

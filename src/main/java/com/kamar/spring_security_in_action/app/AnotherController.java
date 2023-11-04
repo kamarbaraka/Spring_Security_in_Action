@@ -36,8 +36,8 @@ public class AnotherController {
 
     @GetMapping
     @Operation(tags = {"Another"}, summary = "another message", description = "get another message")
-    @PreAuthorize(value = "hasAnyRole('USER', 'ADMIN')")
-    public ResponseEntity<EntityModel<Message>> another(@AuthenticationPrincipal UserDetails authenticatedUser){
+    @PreAuthorize("permitAll()")
+    public ResponseEntity<EntityModel<Message>> another(){
 
 
         /*create the message*/
@@ -45,7 +45,7 @@ public class AnotherController {
         /*create an EntityModel for the message*/
         EntityModel<Message> resource = EntityModel.of(message);
         /*set the links*/
-        resource.add(WebMvcLinkBuilder.linkTo(WebMvcLinkBuilder.methodOn(HelloController.class).hello(authenticatedUser)).withSelfRel());
+        resource.add(WebMvcLinkBuilder.linkTo(WebMvcLinkBuilder.methodOn(HelloController.class).hello()).withSelfRel());
         /*return the message entity as a response entity*/
         return ResponseEntity.ok(resource);
     }
